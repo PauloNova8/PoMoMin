@@ -1,0 +1,103 @@
+USE PoMoMin
+GO
+
+CREATE PROCEDURE UPDATE_INVENTARIO
+	@ID BIGINT,
+	@CODIGOLETRAS NVARCHAR(200),
+	@IDCATEGORIA INT,
+	@IDFABRICANTE INT,
+	@MODELO NVARCHAR(50),
+	@SERIE NVARCHAR(50),
+	@DESCRIPCION NVARCHAR(150),
+	@IDSUCURSAL INT,
+	@IDPROVEEDOR INT,
+	@IDESTADO INT,
+	@FECHACOMPRA DATE,
+	@FECHAUTILMAXIMA DATE,
+	@FECHAULTIMOSOPORTE DATE,
+	-- @FECHAREGISTRO DEFAULT GETDATE() DESDE CREACION DE TABLA
+	@NOTAS NTEXT,
+	-- DATOS PARA BITACORA
+	@USUARIOBITA NVARCHAR(100),
+	@DISPOSITIVO NVARCHAR(200),
+	-- RECUPERAR RESULTADO
+	@RESULT BIGINT OUTPUT
+AS
+DECLARE @MENSAJE AS VARCHAR(100);
+BEGIN TRY
+	IF @ID IS NULL OR @IDESTADO IS NULL
+	   BEGIN
+			RAISERROR('Algunos parámetros no pueden ser nulos', 16, 1)
+			SET @RESULT = 0;
+		END
+	IF EXISTS(SELECT CodigoInventario FROM Inventario WHERE CodigoInventario = @CODIGOLETRAS AND InventarioID <> @ID)
+	   BEGIN
+			RAISERROR('El código alfanumerico ya existe en la base', 16, 1)
+			SET @RESULT = 0;
+		END
+	UPDATE Inventario
+	SET CategoriaID = COALESCE(@IDCATEGORIA, CategoriaID),
+		FabricanteID = COALESCE(@IDFABRICANTE, FabricanteID),
+		Modelo = COALESCE(@MODELO, Modelo),
+		Serie = COALESCE(@SERIE, Serie),
+		Descripcion = @DESCRIPCION,
+		SucursalID = COALESCE(@IDSUCURSAL, SucursalID),
+		ProveedorID = COALESCE(@IDPROVEEDOR, ProveedorID),
+		EstadoID = COALESCE(@IDESTADO, EstadoID),
+		FechaCompra = COALESCE(@FECHACOMPRA, FechaCompra),
+		FechaUtilMaxima = COALESCE(@FECHAUTILMAXIMA, FechaUtilMaxima),
+		FechaUltimoSoporte = COALESCE(@FECHAULTIMOSOPORTE, FechaUltimoSoporte),
+		Notas = @NOTAS
+	WHERE InventarioID = @ID
+	
+	IF @IDESTADO <> 2 -- INACTIVO
+	BEGIN
+		IF @IDESTADO = 3
+		BEGIN
+			-- DESASIGNAR EL INVENTARIO DE LOS EMPLEADOS
+			-- HISTORICO
+			UPDATE InventarioEmpleados
+			SET FechaFin = GETDATE(),
+				MotivoDesasignacionID = 4,
+				Notas = 'Se desasignó el equipo por actualización del estado del inventario'
+			WHERE InventarioID = @ID AND FechaFin IS NULL
+
+			-- DESASIGNAR Y MARCAR COMO EN SOPORTE
+			UPDATE Inventario
+			SET AsignadoA = NULL,
+				EstadoID = @IDESTADO
+			WHERE InventarioID = @ID
+		END
+		SET @MENSAJE = 'Actualización de inventario con ID: ' + CAST(@ID AS VARCHAR);
+		-- BITACORA
+		EXEC INSERT_BITACORA @USUARIOBITA, 'UPDATE', 'COMPLETADO EXITOSAMENTE', @MENSAJE, @DISPOSITIVO;
+	END
+	ELSE
+	BEGIN
+		-- DESASIGNAR EL INVENTARIO DE LOS EMPLEADOS
+		-- HISTORICO
+		UPDATE InventarioEmpleados
+		SET FechaFin = GETDATE(),
+			MotivoDesasignacionID = 8, -- DESTRUCCION O PERDIDA TOTAL DE INVENTARIO
+			Notas = 'Se desasignó el equipo por actualización del estado del inventario'
+		WHERE InventarioID = @ID AND FechaFin IS NULL
+
+		-- DESASIGNAR Y MARCAR COMO INACTIVO
+		UPDATE Inventario
+		SET AsignadoA = NULL,
+			EstadoID = @IDESTADO
+		WHERE InventarioID = @ID
+
+		SET @MENSAJE = 'Desactivación de inventario con ID: ' + CAST(@ID AS VARCHAR);
+		-- BITACORA
+		EXEC INSERT_BITACORA @USUARIOBITA, 'DEACTIVATE', 'COMPLETADO EXITOSAMENTE', @MENSAJE, @DISPOSITIVO;
+	END
+
+	SET @RESULT = 1;
+END TRY
+BEGIN CATCH
+	SET @MENSAJE = 'Mensaje de error:' + ERROR_MESSAGE();
+	EXEC INSERT_BITACORA @USUARIOBITA, 'UPDATE', 'NO COMPLETADO', @MENSAJE, @DISPOSITIVO;
+	SET @RESULT = 0;
+END CATCH
+GO

@@ -1,0 +1,123 @@
+USE [PoMoMin]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [EstadosEmpleado](
+	[EstadoID] [int] IDENTITY(1,1) NOT NULL,
+	[Estado] [nvarchar](100) NOT NULL,
+	[Descripcion] [nvarchar](150) NULL
+ CONSTRAINT [PK_ESTADOSEMPLEADO] PRIMARY KEY CLUSTERED 
+(
+	[EstadoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+
+CREATE TABLE [dbo].[Sucursales](
+	[SucursalID] [int] IDENTITY(1,1) NOT NULL,
+	[Nombre] [nvarchar](100) NOT NULL,
+	[Direccion] [nvarchar](200) NULL,
+	[Activo] [bit] NOT NULL
+ CONSTRAINT [PK_SUCURSALES] PRIMARY KEY CLUSTERED 
+(
+	[SucursalID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+
+CREATE TABLE [dbo].[Departamentos](
+	[DepartamentoID] [int] IDENTITY(1,1) NOT NULL,
+	[Nombre] [nvarchar](100) NOT NULL,
+	[Descripcion] [nvarchar](200) NULL
+ CONSTRAINT [PK_DEPARTAMENTOS] PRIMARY KEY CLUSTERED 
+(
+	[DepartamentoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+
+CREATE TABLE [dbo].[Puestos](
+	[PuestoID] [int] IDENTITY(1,1) NOT NULL,
+	[Nombre] [nvarchar](100) NOT NULL,
+	[DepartamentoID] [int] NOT NULL,
+	[Descripcion] [nvarchar](200) NULL
+ CONSTRAINT [PK_PUESTOS] PRIMARY KEY CLUSTERED 
+(
+	[PuestoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE dbo.Puestos
+ADD CONSTRAINT FK_PUESTO_DEPTO
+FOREIGN KEY (DepartamentoID)
+REFERENCES dbo.Departamentos(DepartamentoID);
+
+
+
+CREATE TABLE [dbo].[Empleados](
+	[EmpleadoID] [bigint] IDENTITY(1,1) NOT NULL,
+	[Nombres] [nvarchar](100) NOT NULL,
+	[Apellidos] [nvarchar](100) NOT NULL,
+	[Identificacion] [nvarchar](100) NOT NULL,
+	[SucursalID] [int] NOT NULL,
+	[PuestoID] [int] NOT NULL,
+	[ReportaA] [bigint] NULL,
+	[TelefonoCelular] [nvarchar](100) NULL,
+	[TelefonoTrabajo] [nvarchar](100) NULL,
+	[Direccion] [nvarchar](150) NULL,
+	[Genero] [nvarchar] (15) NULL,
+	[FechaNacimiento] [date] NULL,
+	[FechaAlta] [date] NULL,
+	[FechaBaja] [date] NULL,
+	[EstadoID] [int] NOT NULL,
+	[FechaRegistro] [date] DEFAULT GETDATE(),
+	[Notas] [ntext] NULL,
+ CONSTRAINT [PK_EMPLEADOS] PRIMARY KEY CLUSTERED 
+(
+	[EmpleadoID] ASC
+)
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE dbo.Empleados
+ADD CONSTRAINT FK_EMPLEADO_SUCURSAL
+FOREIGN KEY (SucursalID)
+REFERENCES dbo.Sucursales(SucursalID);
+
+ALTER TABLE dbo.Empleados
+ADD CONSTRAINT FK_EMPLEADO_PUESTO
+FOREIGN KEY (PuestoID)
+REFERENCES dbo.Puestos(PuestoID);
+
+ALTER TABLE dbo.Empleados
+ADD CONSTRAINT FK_EMPLEADO_REPORTAA
+FOREIGN KEY (ReportaA)
+REFERENCES dbo.Empleados(EmpleadoID);
+
+ALTER TABLE dbo.Empleados
+ADD CONSTRAINT FK_EMPLEADO_ESTADO
+FOREIGN KEY (EstadoID)
+REFERENCES dbo.EstadosEmpleado(EstadoID);
+
+ALTER TABLE dbo.Empleados
+ADD CONSTRAINT CK_GENEROS_EMPLEADOS
+CHECK (Genero IN ('M', 'F', 'N/A', 'OTRO'));
+
+GO
