@@ -1,0 +1,27 @@
+USE PoMoMin
+GO
+
+CREATE PROCEDURE INICIO_SESION
+	@USUARIO NVARCHAR(200),
+	@CLAVE NVARCHAR(300),
+	@ID BIGINT OUTPUT
+AS
+DECLARE @MENSAJE AS VARCHAR(100);
+BEGIN TRY
+	IF @USUARIO IS NULL OR @CLAVE IS NULL 
+	   BEGIN
+			RAISERROR('Algunos parámetros no pueden ser nulos', 16, 1)
+			SET @ID = 0;
+		END
+	IF NOT EXISTS(SELECT UsuarioID FROM Usuarios WHERE Usuario = @USUARIO AND Clave = @CLAVE AND EstadoID = 1)
+	   BEGIN
+			RAISERROR('Este usuario no existe o la clave es incorrecta', 16, 1)
+			SET @ID = 0;
+		END
+	
+	SELECT @ID = UsuarioID FROM Usuarios WHERE Usuario = @USUARIO AND Clave = @CLAVE AND EstadoID = 1
+END TRY
+BEGIN CATCH
+	SET @ID = 0;
+END CATCH
+GO
