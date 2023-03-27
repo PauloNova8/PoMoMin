@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block usuario %}
-{{ request.user.username }}
-{% endblock %}
-
 {% block content %}
 
 <div class="content-wrap">
@@ -18,12 +14,12 @@
                             </div>
                             <div class="card-body">
                                 <div class="basic-form">
-                                    <form id="formulario" method='POST' action=''>
+                                    <form id="formulario" method='POST' action='' onkeydown="return event.key != 'Enter';">
                                         <div class="row">
                                             <div class="col-lg-4">
                                                 <div class="form-group">
                                                     {% csrf_token %}
-                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.user.username }}">
+                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.session.Usuario }}">
                                                     <input type="hidden" id="device" name="device" value="{{ device }}">
                                                     <p class="text-muted m-b-15 f-s-12 mt-3">Nombres</p>
                                                     <input id="Nombres" name="Nombres"  required="true" maxlength="100" type="text" class="form-control input-flat" style="font-size: small;" placeholder="Ejemplo: Juan Pablo">
@@ -171,6 +167,13 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
                     </div>
                 </div>
             </section>

@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block usuario %}
-{{ request.user.username }}
-{% endblock %}
-
 {% block content %}
 <style>
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
@@ -129,6 +125,13 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
                     </div>
                 </div>
             </section>

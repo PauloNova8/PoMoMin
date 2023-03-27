@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="content-wrap">
+    <div class="main">
+        <div class="container-fluid">
+            <section id="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-title">
+                                <h3>Registrar proveedor</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="basic-form">
+                                    <form id="formulario" method='POST' action='' onkeydown="return event.key != 'Enter';">
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.session.Usuario }}">
+                                                    <input type="hidden" id="device" name="device" value="{{ device }}">
+                                                    <p class="text-muted m-b-15 f-s-12 mt-3">Nombre del proveedor</p>
+                                                    <input id="Nombre" name="Nombre"  required="true" maxlength="100" type="text" class="form-control input-flat" style="font-size: small;" placeholder="Ejemplo: TecnoComp">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12 mt-3">Descripción</p>
+                                                    <input id="Descripcion" name="Descripcion"  required="true" maxlength="150" type="text" class="form-control input-flat" style="font-size: small;" placeholder="Ejemplo: TecnoComp proveedor de ordenadores personales, servidores, switches de red, programas informáticos y periféricos.">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-8">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Dirección</p>
+                                                    <input id="Direccion" name="Direccion"  required="true" maxlength="150" type="text" class="form-control input-flat" style="font-size: small;" placeholder="Ejemplo: Mall Las Cascadas, segundo nivel, frente al área de cines.">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Teléfono</p>
+                                                    <input id="Telefono" name="Telefono"  required="true" data-placeholder="____-____" data-slots="_" maxlength="100" type="text" class="form-control input-flat" style="font-size: small;" placeholder="Ejemplo: 9999-2324">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="row">
+                                                    <div class="col-lg-12 p-1">
+                                                        <div class="form-group">
+                                                            <p class="text-muted m-b-15 f-s-12">Nombre del contacto</p>
+                                                            <input id="NombreContacto" name="NombreContacto"  required="true" maxlength="100" type="text" class="form-control input-flat" style="font-size: small;" placeholder="Ejemplo: Maria Cabrera">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-12 p-1">
+                                                        <div class="form-group">
+                                                            <p class="text-muted m-b-15 f-s-12">Fecha de registro</p>
+                                                            <input id="FechaRegistro" name="FechaRegistro" readonly type="date" class="form-control input-flat" style="font-size: small;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Observaciones</p>
+                                                    <textarea id="Notas" name="Notas" class="form-control" rows="7" style="height: 100%; font-size: small;" placeholder="Observaciones que desee agregar sobre el proveedor..."></textarea>                                                
+                                                </div>   
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12" style="text-align: right;">
+                                                <input type="submit" id="validate" hidden/>
+                                                <button type="button" onclick="insertarProveedor()" class="btn btn-success" style="min-width: 250px;">Registrar Proveedor</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% load static %}
+<script>
+    //Llenado de fecha
+    $(document).ready(function(){
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //Los meses en JS van del 0 hasta el 11, igual que mi IQ
+        var yyyy = today.getFullYear();
+        document.getElementById("FechaRegistro").value = yyyy + '-' + mm + '-' + dd;
+    });
+</script>
+<script src="{% static 'js/proveedor.js' %}"></script>
+{% endblock %}

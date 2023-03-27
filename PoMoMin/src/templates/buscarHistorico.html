@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        color: #343957 !important;
+        opacity: 90% !important;
+        border: #343957 !important;
+        background-color: white !important;
+        background: white !important;
+        background: white !important;
+        background: white !important;
+        background: white !important;
+        background: white !important;
+        background: white !important;
+        box-shadow: none !important;
+    }
+
+    .page-item.active .page-link {
+        color: white !important;
+        background-color: white !important;
+        border-color: white !important;
+        box-shadow: none !important;
+    }
+
+    .pagination > li > a
+    {
+        background-color: white !important;
+        color: #343957 !important;
+        opacity: 90% !important;
+    }
+
+    .pagination > li > a:focus,
+    .pagination > li > span:focus
+    {
+        color: white !important;
+    }
+
+    .pagination > .active > a
+    {
+        color: white !important;
+        background-color: #343957 !important;
+        border: #343957 !important;
+        opacity: 90% !important;
+    }
+
+    .pagination > li.next > a:focus,
+    .pagination > li.next > span:focus,
+    .pagination > li.previous > a:focus,
+    .pagination > li.previous > span:focus {
+        color: #343957 !important;
+    }
+
+    .pagination > .active > a:hover
+    {
+        color: white !important;
+        background-color: #343957 !important;
+        border: #343957 !important;
+        opacity: 90% !important;
+    }
+
+    table, th, td {
+        border: 1px solid #dddddd !important;
+    }
+
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+{% load static %}  
+<link href="{% static 'css/lib/data-table/dataTables.bootstrap.min1.css' %}" rel="stylesheet" />
+
+<div class="content-wrap">
+    <div class="main">
+        <div class="container-fluid">
+            <section id="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card" style="min-height: 650px;">
+                            <div class="card-title">
+                                <div class="col-lg-12">
+                                <h3>Buscar registros de histórico de asignaciones</h3>
+                                </div>
+                            </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="TablaHistorico" cellspacing="0" class="table table-hover table-bordered  table-sm no-spacing" style="font-size:85%;">
+                                    <thead style="background-color: #343957; opacity: 90%; color: white;">
+                                        <tr>
+                                            <th style="color: white;">Codigo de Inventario</th>
+                                            <th style="color: white; min-width: 90px;">Empleado</th>
+                                            <th style="color: white;">Motivo de Asignación</th>
+                                            <th style="color: white;">Motivo de Desasignación</th>
+                                            <th style="color: white; text-align: center;">Fecha de Asignación</th>
+                                            <th style="color: white; text-align: center;">Fecha de Desasignación</th>
+                                            <th style="color: white; text-align: center; width: 10px;">Editar</th>
+                                        </tdr>
+                                    </thead>
+                                    <tbody>
+                                        {% for registro in showHistorico %}
+                                        <tr>
+                                            <td>{{ registro.CodigoInventario }}</td>
+                                            <td>{{ registro.NombreCompleto }}</td>
+                                            <td>{{ registro.MotivoAsignacion }}</td>
+                                            {% if registro.MotivoDesasignacion != None %}
+                                            <td>{{ registro.MotivoDesasignacion }}</td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                            <td style="text-align: center;" >{{ registro.FechaVigente|date:'Y-m-d H:i' }}</td>
+                                            {% if registro.MotivoDesasignacion != None %}
+                                            <td style="text-align: center;">{{ registro.FechaFin|date:'Y-m-d H:i' }}</td>
+                                            {% else %}
+                                            <td></td>
+                                            {% endif %}
+                                            <td style="text-align: center;">
+                                                <a href="{% url 'verHistorico' id=registro.id  %}">
+                                                    <i class="ti-search"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row ml-1 mr-1">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <a href="{% url 'reporteHistorico' %}" target="_blank">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" style="min-width: 250px; font-size: 13px; border: #343957; background-color: #343957; opacity: 90%; color: white;">Informe de movimiento de inventario mensual</button>    
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% load static %}  
+<script src="{% static 'js/historico.js' %}"></script>
+{% endblock %}

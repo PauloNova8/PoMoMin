@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .center {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+
+<div class="content-wrap">
+    <div class="main">
+        <div class="container-fluid">
+            <section id="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-title">
+                                <h3>Ver detalles del registro</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="basic-form">
+                                    <form id="formulario" method='POST' action=''>
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12 mt-3">Código de Inventario</p>
+                                                    <input id="CodigoInventario" name="CodigoInventario"  required="true" readonly value="{{ registroTraido.CodigoInventario }}" maxlength="200" type="text" class="form-control input-flat" style="font-size: small;">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12 mt-3">Empleado asignado</p>
+                                                    <input id="Empleado" name="Empleado"  required="true" readonly value="{{ registroTraido.NombreCompleto }}" maxlength="200" type="text" class="form-control input-flat" style="font-size: small;">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12 mt-3">Motivo de asignación</p>
+                                                    <input id="MotivoAsignacion" name="MotivoAsignacion"  required="true" readonly value="{{ registroTraido.MotivoAsignacion }}" maxlength="200" type="text" class="form-control input-flat" style="font-size: small;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Fecha y hora de asignación</p>
+                                                    <input id="FechaVigente" name="FechaVigente" readonly value='{{ registroTraido.FechaVigente|date:"Y-m-d H:i" }}' required="true" type="datetime-local" class="form-control input-flat" style="font-size: small;">
+                                                </div>
+                                            </div>
+                                            {% if registroTraido.MotivoDesasignacion != "" %}
+                                            <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Motivo de desasignación</p>
+                                                    <input id="MotivoDesasignacion" name="MotivoDesasignacion"  required="true" readonly value="{{ registroTraido.MotivoDesasignacion }}" maxlength="200" type="text" class="form-control input-flat" style="font-size: small;">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Fecha y hora de desasignación</p>
+                                                    <input id="FechaFin" name="FechaFin" readonly value='{{ registroTraido.FechaFin|date:"Y-m-d H:i" }}' required="true" type="datetime-local" class="form-control input-flat" style="font-size: small;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Observaciones de registro</p>
+                                                    <textarea id="Notas" readonly name="Notas" class="form-control" rows="8" style="height: 100%; font-size: small;">{{ registroTraido.Notas}}</textarea>                                                
+                                                </div>
+                                            </div> 
+                                        </div>
+                                        {% else %}
+                                            <div class="col-lg-8">
+                                                <div class="form-group">
+                                                    <p class="text-muted m-b-15 f-s-12">Observaciones de registro</p>
+                                                    <textarea id="Notas" readonly name="Notas" class="form-control" rows="8" style="height: 100%; font-size: small;">{{ registroTraido.Notas}}</textarea>                                                
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %} 
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% load static %}  
+<script>
+    var ruta = "{% static 'codes/' %}"
+    $(document).ready(function(){
+        var img = document.createElement("IMG");
+        var nombre = document.getElementById("CodigoBarra").value;
+        const childToReplace = document.getElementById("imagenCodigo");
+        var padre = childToReplace.parentNode;
+        img.src = ruta + "Cod-"+ nombre + ".png";
+        img.style.maxHeight = '180px';
+        img.style.maxWidth = '280px';
+        img.id = 'imagenCodigo';
+        img.className = 'center'
+        padre.replaceChild(img, childToReplace);
+    });
+</script>
+<script src="{% static 'js/equipo.js' %}"></script>
+{% endblock %}

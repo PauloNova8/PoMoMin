@@ -1,29 +1,51 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from .models import *
+from usuarios.models import showUsuarios
+from usuarios.views import login_view
+from inventario.views import home_view
 from inventario.models import showSucursales
 from django.db import connection
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from dateutil import parser
+from django.views.decorators.cache import cache_control
 
 # EMPLEADOS
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def empleado_insert_view(request, *args, **kwargs):
-    querySucursales = "SELECT 1 AS id, SucursalID, Nombre FROM Sucursales WHERE Activo = 1"
-    sucursales = showSucursales.objects.raw(querySucursales)
-
-    queryDepartamentos = "SELECT 1 AS id, DepartamentoID, Nombre FROM Departamentos"
-    departamentos = showDepartamentos.objects.raw(queryDepartamentos)
-
-    queryEstados = "SELECT 1 AS id, EstadoID, Estado FROM EstadosEmpleado"
-    estados = showEstados.objects.raw(queryEstados)
-
-    context = {
-        "showDepartamentos": departamentos,
-        "showEstados": estados,
-        "showSucursales": sucursales,
-        "device": request.META.get('COMPUTERNAME', '')
-    }
+    if request.session.get('UsuarioID', None) is None:
+        return redirect(login_view)
     
-    return render(request, 'insertarEmpleado.html', context)
+    queryUsuario = """SELECT * FROM v_Usuarios WHERE UsuarioID = %s"""
+    usuarios = showUsuarios.objects.raw(queryUsuario, [request.session.get('UsuarioID', '')])
+    for obj in usuarios:
+        usuario = obj
+    request.session['UsuarioID'] = usuario.UsuarioID
+    request.session['Usuario'] = usuario.Usuario
+    request.session['PerfilID'] = usuario.PerfilID
+    request.session['EstadoID'] = usuario.EstadoID
+    if request.session.get('EstadoID', '') != 1:
+        return redirect(login_view)
+    else:
+        if request.session.get('PerfilID', '') != 1: 
+            return redirect(home_view)
+        
+        querySucursales = "SELECT 1 AS id, SucursalID, Nombre FROM Sucursales WHERE Activo = 1"
+        sucursales = showSucursales.objects.raw(querySucursales)
+
+        queryDepartamentos = "SELECT 1 AS id, DepartamentoID, Nombre FROM Departamentos"
+        departamentos = showDepartamentos.objects.raw(queryDepartamentos)
+
+        queryEstados = "SELECT 1 AS id, EstadoID, Estado FROM EstadosEmpleado"
+        estados = showEstados.objects.raw(queryEstados)
+
+        context = {
+            "showDepartamentos": departamentos,
+            "showEstados": estados,
+            "showSucursales": sucursales,
+            "device": request.META.get('COMPUTERNAME', '')
+        }
+        
+        return render(request, 'insertarEmpleado.html', context)
 
 def cargar_puestos(request):
     if request.method == 'POST':
@@ -127,11 +149,15 @@ def sp_insertar_empleado(request):
                                     DECLARE @ID AS INT;
                                     EXEC INSERT_EMPLEADO %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @ID = @ID OUTPUT
                                     SELECT @ID AS REPUESTA'''
+                if request.user_agent.device.family == 'Other':
+                    device = 'PC' + " " + request.user_agent.os.family + " " + request.user_agent.os.version_string
+                else:
+                    device = request.user_agent.device.family + " " + request.user_agent.os.family + " " + request.user_agent.os.version_string
                 params = (  request.POST['Nombres'], request.POST['Apellidos'], request.POST['Identificacion'],
                             int(request.POST['SucursalID']), int(request.POST['PuestoID']), reportaA, numCel, 
                             numTrabajo, direccion, request.POST['Genero'], request.POST['FechaNacimiento'], 
                             request.POST['FechaAlta'], fechaBaja, int(request.POST['EstadoID']), 
-                            notas, request.user.username, request.META.get('COMPUTERNAME'))
+                            notas, request.session.get('Usuario', ''), device)
                 cursor.execute(storedProcedure, params)
                 respuesta = int(cursor.fetchone()[0])
 
@@ -151,53 +177,88 @@ def sp_insertar_empleado(request):
     else:
         return HttpResponseForbidden()
     
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def empleado_buscar_view(request, *args, **kwargs):
-    queryInventario = """SELECT * FROM v_Empleados"""
-    empleado = showEmpleados.objects.raw(queryInventario)
-    context = {
-        "showEmpleados": empleado,
-        "device": request.META.get('COMPUTERNAME', '')
-    }
+    if request.session.get('UsuarioID', None) is None:
+        return redirect(login_view)
     
-    return render(request, 'buscarEmpleado.html', context)
+    queryUsuario = """SELECT * FROM v_Usuarios WHERE UsuarioID = %s"""
+    usuarios = showUsuarios.objects.raw(queryUsuario, [request.session.get('UsuarioID', '')])
+    for obj in usuarios:
+        usuario = obj
+    request.session['UsuarioID'] = usuario.UsuarioID
+    request.session['Usuario'] = usuario.Usuario
+    request.session['PerfilID'] = usuario.PerfilID
+    request.session['EstadoID'] = usuario.EstadoID
+    if request.session.get('EstadoID', '') != 1:
+        return redirect(login_view)
+    else:
+        if request.session.get('PerfilID', '') != 1: 
+            return redirect(home_view)
+        
+        queryInventario = """SELECT * FROM v_Empleados"""
+        empleado = showEmpleados.objects.raw(queryInventario)
+        context = {
+            "showEmpleados": empleado,
+            "device": request.META.get('COMPUTERNAME', '')
+        }
+        
+        return render(request, 'buscarEmpleado.html', context)
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def empleado_actualizar_view(request, id):
-    queryEmpleados = """SELECT * FROM v_Empleados WHERE EmpleadoID = %s"""
-    empleados = showEmpleados.objects.raw(queryEmpleados, [int(id)])
-
-    querySucursales = "SELECT 1 AS id, SucursalID, Nombre, Activo FROM Sucursales ORDER BY Activo DESC" 
-    sucursales = showSucursales.objects.raw(querySucursales)
-
-    queryDepartamentos = "SELECT 1 AS id, DepartamentoID, Nombre FROM Departamentos"
-    departamentos = showDepartamentos.objects.raw(queryDepartamentos)
-
-    queryEstados = "SELECT 1 AS id, EstadoID, Estado FROM EstadosEmpleado"
-    estados = showEstados.objects.raw(queryEstados)
-
-    for obj in empleados:
-        empleado = obj
+    if request.session.get('UsuarioID', None) is None:
+        return redirect(login_view)
     
-    obj.FechaNacimiento = parser.parse(str(obj.FechaNacimiento))
-    obj.FechaAlta = parser.parse(str(obj.FechaAlta))
-    if(obj.FechaBaja != None):
-        obj.FechaBaja = parser.parse(str(obj.FechaBaja))
-    
-    if(obj.Direccion == None):
-        obj.Direccion = ""
+    queryUsuario = """SELECT * FROM v_Usuarios WHERE UsuarioID = %s"""
+    usuarios = showUsuarios.objects.raw(queryUsuario, [request.session.get('UsuarioID', '')])
+    for obj in usuarios:
+        usuario = obj
+    request.session['UsuarioID'] = usuario.UsuarioID
+    request.session['Usuario'] = usuario.Usuario
+    request.session['PerfilID'] = usuario.PerfilID
+    request.session['EstadoID'] = usuario.EstadoID
+    if request.session.get('EstadoID', '') != 1:
+        return redirect(login_view)
+    else:
+        if request.session.get('PerfilID', '') != 1: 
+            return redirect(home_view)
+        
+        queryEmpleados = """SELECT * FROM v_Empleados WHERE EmpleadoID = %s"""
+        empleados = showEmpleados.objects.raw(queryEmpleados, [int(id)])
 
-    if(obj.Notas == None):
-        obj.Notas = ""
+        querySucursales = "SELECT 1 AS id, SucursalID, Nombre, Activo FROM Sucursales ORDER BY Activo DESC" 
+        sucursales = showSucursales.objects.raw(querySucursales)
 
-    context = {
-        "showDepartamentos": departamentos,
-        "showEstados": estados,
-        "showSucursales": sucursales,
-        "device": request.META.get('COMPUTERNAME', ''),
-        "empleadoTraido" : empleado
-    }
-    
-    
-    return render(request, 'actualizarEmpleado.html', context)
+        queryDepartamentos = "SELECT 1 AS id, DepartamentoID, Nombre FROM Departamentos"
+        departamentos = showDepartamentos.objects.raw(queryDepartamentos)
+
+        queryEstados = "SELECT 1 AS id, EstadoID, Estado FROM EstadosEmpleado"
+        estados = showEstados.objects.raw(queryEstados)
+
+        for obj in empleados:
+            empleado = obj
+        
+        obj.FechaNacimiento = parser.parse(str(obj.FechaNacimiento))
+        obj.FechaAlta = parser.parse(str(obj.FechaAlta))
+        if(obj.FechaBaja != None):
+            obj.FechaBaja = parser.parse(str(obj.FechaBaja))
+        
+        if(obj.Direccion == None):
+            obj.Direccion = ""
+
+        if(obj.Notas == None):
+            obj.Notas = ""
+
+        context = {
+            "showDepartamentos": departamentos,
+            "showEstados": estados,
+            "showSucursales": sucursales,
+            "device": request.META.get('COMPUTERNAME', ''),
+            "empleadoTraido" : empleado
+        }
+        
+        return render(request, 'actualizarEmpleado.html', context)
 
 def sp_actualizar_empleado(request):
     if request.method == 'POST':
@@ -226,11 +287,15 @@ def sp_actualizar_empleado(request):
                                     DECLARE @RESULT AS INT;
                                     EXEC UPDATE_EMPLEADO %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @RESULT = @RESULT OUTPUT
                                     SELECT @RESULT AS REPUESTA'''
+                if request.user_agent.device.family == 'Other':
+                    device = 'PC' + " " + request.user_agent.os.family + " " + request.user_agent.os.version_string
+                else:
+                    device = request.user_agent.device.family + " " + request.user_agent.os.family + " " + request.user_agent.os.version_string
                 params = (  int(request.POST['EmpleadoID']), request.POST['Nombres'], request.POST['Apellidos'], request.POST['Identificacion'],
                             int(request.POST['SucursalID']), int(request.POST['PuestoID']), reportaA, numCel, 
                             numTrabajo, direccion, request.POST['Genero'], request.POST['FechaNacimiento'], 
                             request.POST['FechaAlta'], fechaBaja, int(request.POST['EstadoID']), 
-                            notas, request.user.username, request.META.get('COMPUTERNAME'))
+                            notas, request.session.get('Usuario', ''), device)
                 cursor.execute(storedProcedure, params)
                 respuesta = int(cursor.fetchone()[0])
 
@@ -259,7 +324,12 @@ def sp_desactivar_empleado(request):
                                     DECLARE @RESULT AS INT;
                                     EXEC DEACTIVATE_EMPLEADO %s, %s, %s, %s, @RESULT = @RESULT OUTPUT
                                     SELECT @RESULT AS REPUESTA'''
-                params = (  int(request.POST['EmpleadoID']), 2, request.user.username, request.META.get('COMPUTERNAME'))
+                if request.user_agent.device.family == 'Other':
+                    device = 'PC' + " " + request.user_agent.os.family + " " + request.user_agent.os.version_string
+                else:
+                    device = request.user_agent.device.family + " " + request.user_agent.os.family + " " + request.user_agent.os.version_string
+                params = (  int(request.POST['EmpleadoID']), 2, 
+                            request.session.get('Usuario', ''), device)
                 cursor.execute(storedProcedure, params)
                 respuesta = int(cursor.fetchone()[0])
 

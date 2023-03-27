@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block usuario %}
-{{ request.user.username }}
-{% endblock %}
-
 {% block content %}
 <style>
     .confirm:hover, .confirm:focus {
@@ -44,12 +40,12 @@
                             </div>
                             <div class="card-body">
                                 <div class="basic-form">
-                                    <form id="formulario" method='POST' action=''>
+                                    <form id="formulario" method='POST' action='' onkeydown="return event.key != 'Enter';">
                                         <div class="row">
                                             <div class="col-lg-4">
                                                 <div class="form-group">
                                                     {% csrf_token %}
-                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.user.username }}">
+                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.session.Usuario }}">
                                                     <input type="hidden" id="device" name="device" value="{{ device }}">
                                                     <input id="InventarioID" name="InventarioID" required value="{{ inventarioTraido.InventarioID }}" type="text" hidden="true"> <!--TIPO EQUIPO-->
                                                     <p class="text-muted m-b-15 f-s-12 mt-3">Código Alfanumérico</p>
@@ -212,10 +208,22 @@
                                                     <textarea id="Notas" name="Notas" class="form-control" rows="8" style="height: 100%; font-size: small;" placeholder="Observaciones que desee agregar sobre el equipo...">{{ inventarioTraido.Notas}}</textarea>                                                
                                                 </div>
                                             </div> 
-                                            <div class="col-lg-4 mt-5">
-                                                <div class="form-group">
-                                                    <p class="text-muted m-b-15 f-s-12">El equipo está asignado a:</p>
-                                                    <input id="AsignadoA" name="AsignadoA" readonly value="{{ inventarioTraido.AsignadoNombre }}" maxlength="200" type="text" class="form-control input-flat" style="font-size: small; text-align: center;" placeholder="No está asignado a ningún empleado actualmente.">
+                                            <div class="col-lg-4">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <p class="text-muted m-b-15 f-s-12">El equipo está asignado a:</p>
+                                                            <input id="AsignadoA" name="AsignadoA" readonly value="{{ inventarioTraido.AsignadoNombre }}" maxlength="200" type="text" class="form-control input-flat" style="font-size: small; text-align: center;" placeholder="No está asignado a ningún empleado">
+                                                        </div>
+                                                    </div>
+                                                    {% if inventarioTraido.AsignadoNombre != '' %}
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <p class="text-muted m-b-15 f-s-12">Fecha de asignación (mes/día/año)</p>
+                                                            <input id="FechaAsignado" name="FechaAsignado" readonly value="{{ fechaVigente }}" maxlength="200" type="date" class="form-control input-flat" style="font-size: small; text-align: center;">
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                             </div> 
                                         </div> 
@@ -238,6 +246,13 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
                     </div>
                 </div>
             </section>

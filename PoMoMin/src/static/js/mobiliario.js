@@ -93,7 +93,7 @@ function showErrorMessage(mensaje) {
 $(document).ready(function(){
     $('#TablaMobiliario').DataTable( {
         "pageLength" : 10,
-        "order": [[ 1, "asc" ]],
+        "order": [[ 0, "asc" ]],
         "aaSorting": [],
             columnDefs: [{
             orderable: false,

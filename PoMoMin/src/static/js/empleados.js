@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
 $(document).ready(function(){
     $('#TablaEmpleados').DataTable( {
         "pageLength" : 10,
-        "order": [[ 1, "asc" ]],
+        "order": [[ 0, "asc" ]],
         "aaSorting": [],
             columnDefs: [{
             orderable: false,
@@ -382,7 +382,6 @@ function desactivarEmpleado(){
                         var dd = String(today.getDate()).padStart(2, '0');
                         var mm = String(today.getMonth() + 1).padStart(2, '0'); //Los meses en JS van del 0 hasta el 11, igual que mi IQ
                         var yyyy = today.getFullYear();
-                        console.log(dd + '-' + mm + '-' + yyyy)
                         document.getElementById("FechaBaja").value = yyyy + '-' + mm + '-' + dd;
 
                         $('html, body').animate({ scrollTop: 0 }, 'fast');

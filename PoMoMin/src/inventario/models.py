@@ -1,4 +1,3 @@
-import json
 from django.db import models
 
 # Create your models here.
@@ -14,6 +13,7 @@ class showFabricantes(models.Model):
     FabricanteID = models.IntegerField()
     Nombre = models.CharField(max_length=100)
     Activo = models.IntegerField()
+    Descripcion = models.CharField(max_length=150, default=None)
     class Meta:
         db_table = "Fabricantes"
 
@@ -29,6 +29,7 @@ class showSucursales(models.Model):
     SucursalID = models.IntegerField()
     Nombre = models.CharField(max_length=100)
     Activo = models.IntegerField()
+    Direccion = models.CharField(max_length=200, default=None)
     class Meta:
         db_table = "Sucursales"
 
@@ -37,8 +38,22 @@ class showProveedores(models.Model):
     ProveedorID = models.IntegerField()
     Nombre = models.CharField(max_length=100)
     Activo = models.IntegerField()
+    Descripcion = models.CharField(max_length=150, default=None)
+    Direccion = models.CharField(max_length=150, default=None)
+    Telefono = models.CharField(max_length=100, default=None)
+    NombreContacto = models.CharField(max_length=100, default=None)
+    FechaRegistro = models.CharField(max_length=100, default=None)
+    Notas = models.TextField(default=None) 
     class Meta:
         db_table = "Proveedores"
+
+class showMotivos(models.Model):
+    MotivoID = models.IntegerField()
+    Motivo = models.CharField(max_length=100)
+    Descripcion = models.CharField(max_length=200)
+    AplicaA = models.CharField(max_length=10)
+    class Meta:
+        db_table = "MotivosCambio"
 
 
 class showInventario(models.Model):
@@ -66,3 +81,19 @@ class showInventario(models.Model):
     Notas = models.TextField(default=None) 
     class Meta:
         db_table = "Inventario"
+
+
+class showHistorico(models.Model):
+    InventarioID = models.IntegerField()
+    EmpleadoID = models.IntegerField()
+    MotivoAsignacionID = models.IntegerField()
+    MotivoDesasignacionID = models.IntegerField()
+    FechaVigente = models.CharField(max_length=100, default=None)
+    FechaFin =models.CharField(max_length=100, default=None)
+    Notas = models.TextField(default=None) 
+    CodigoInventario = models.CharField(max_length=200)
+    NombreCompleto = models.CharField(max_length=200)
+    MotivoAsignacion = models.CharField(max_length=200, default=None)
+    MotivoDesasignacion = models.CharField(max_length=200, default=None)
+    class Meta:
+        db_table = "InventarioEmpleados"

@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block usuario %}
-{{ request.user.username }}
-{% endblock %}
-
 {% block content %}
 <style>
     .confirm:hover, .confirm:focus {
@@ -35,12 +31,12 @@
                             </div>
                             <div class="card-body">
                                 <div class="basic-form">
-                                    <form id="formulario" method='POST' action=''>
+                                    <form id="formulario" method='POST' action='' onkeydown="return event.key != 'Enter';">
                                         <div class="row">
                                             <div class="col-lg-4">
                                                 <div class="form-group">
                                                     {% csrf_token %}
-                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.user.username }}">
+                                                    <input type="hidden" id="usuario" name="usuario" value="{{ request.session.Usuario }}">
                                                     <input type="hidden" id="device" name="device" value="{{ device }}">
                                                     <input id="EmpleadoID" name="EmpleadoID" type="hidden" value="{{ empleadoTraido.EmpleadoID }}">
                                                     <input id="PuestoIDEmpleado" name="PuestoIDEmpleado" type="hidden" value="{{ empleadoTraido.PuestoID }}">
@@ -237,6 +233,13 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                      <div class="footer">
+                        <p style="text-align: center;">2023 © <b>PoMoMin</b>. Creado por <b>Miriam Mondragón.</b></p>
+                      </div>
                     </div>
                 </div>
             </section>
