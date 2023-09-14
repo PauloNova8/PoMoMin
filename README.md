@@ -8,15 +8,19 @@ You can watch this project functionalities in the video demo for [PoMoMin Projec
  ## Functionality and Usage
 - Allow equipment and inventory to be recorded with all relevant information.
 - Allow editing of information or deactivation of equipment or furniture.
+  ![Screenshot of the project.](/Images/7.PNG)
 - Provide unique barcodes and QR codes within the system for each piece of equipment/furniture in the company, and their export in PNG format for printing.
-- List the total equipment or furniture between branches, using filters, or textual search.
 - Allow the use of a virtual reader for barcodes and QR codes for quick search of equipment/furniture.
+  ![Screenshot of the project.](/Images/3.png)
+- List the total equipment or furniture between branches, using filters, or textual search.
 - Allow recording relevant information of company employees, editing and deactivation.
 - Record the assignment of equipment or furniture to an employee and generate reports on this process.
 - Manage branches, departments and suppliers for informational use of registered equipment or furniture.
 - Generate current inventory reports, assignment of equipment or furniture to employees, damaged equipment report, equipment/furniture report in branch and inventory movement report per month.
+  ![Screenshot of the project.](/Images/6.PNG)
 - Recording of activity in the system through a log.
 - Use of a responsive web interface for use from computers and mobile devices.
+  ![Screenshot of the project.](/Images/1.PNG)
 
  ## Considerations
 1. The Python/Django code is large, so the repository only shows a preview the database model, functions and stored procedures needed for the base and bones of the project.
