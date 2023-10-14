@@ -24,5 +24,5 @@ You can watch this project functionalities in the video demo for [PoMoMin Projec
 
  ## Considerations
 1. The Python/Django code is large, so the repository only shows a preview the database model, functions and stored procedures needed for the base and bones of the project.
-2. You can download the zip file if you wich to see the code.
+2. You can download the zip file if you wish to see the code.
 3. It uses a virtual environment wish might need recreation before running the code, since the framework needs to point local paths to work as expected.
